@@ -110,6 +110,7 @@ void GameWorld::updateWorld()
                     Player* player = it->second;
                     if (!player->receivePlayerData())
                     {
+                            
                         std::print("disconneted player :{} current number or players {}\n",
                             player->getName(),players.size());
                         closesocket(sock);
@@ -130,6 +131,7 @@ void GameWorld::updateWorld()
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(250)); // send의 2-3배속도를 권장
+        std::this_thread::sleep_for(std::chrono::milliseconds(8)); // send의 2-3배속도를 권장
     }
 }
 
@@ -140,21 +142,22 @@ void GameWorld::sendWorldData()
 		if (players.empty()) continue;
 
         {
-            std::lock_guard<std::mutex> lock(worldMutex);
-            worldDataStream.Clear();
-            worldDataStream.WritePacketType(PacketType::WorldUpdate);
-            worldDataStream.WriteInt(players.size());
+        std::lock_guard<std::mutex> lock(worldMutex);
+        worldDataStream.Clear();
+        worldDataStream.WritePacketType(PacketType::WorldUpdate);
+		worldDataStream.WriteInt(players.size());
 
-            for (auto& pair : players)  // 월드 데이터 직렬화
-            {
-                Player* player = pair.second;
-                worldDataStream.WriteString(player->getName());
-                worldDataStream.WriteFloat(player->getPosX());
-                worldDataStream.WriteFloat(player->getPosY());
+        for (auto& pair : players)  // 월드 데이터 직렬화
+        {
+            Player* player = pair.second;
+            worldDataStream.WriteString(player->getName());
+            worldDataStream.WriteFloat(player->getPosX());
+            worldDataStream.WriteFloat(player->getPosY());
                 //  std::print("Player {} at ({}, {})\n",
                 // player->getName(), player->getPosX(), player->getPosY());
-            }
-            worldDataStream.HeaderInit();
+         //  std::print("Player {} at ({}, {})\n", player->getName(), player->getPosX(), player->getPosY());
+        }
+        worldDataStream.HeaderInit();
         }
        
         for (auto& pair : players)  // 직렬화된 월드데이터 브로드캐스트
