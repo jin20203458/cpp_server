@@ -109,10 +109,8 @@ void GameWorld::updateWorld()
                 {
                     Player* player = it->second;
                     if (!player->receivePlayerData())
-                    {
-                            
-                        std::print("disconneted player :{} current number or players {}\n",
-                            player->getName(),players.size());
+                    {     
+                        std::print("disconneted player :{}\n",player->getName());
                         closesocket(sock);
                         FD_CLR(sock, &readfds);
                         removePlayer(sock);
